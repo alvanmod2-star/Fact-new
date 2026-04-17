@@ -181,7 +181,6 @@
 </div>
 
 <script>
-    // الرابط الجديد الذي قمت بإنشائه
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyHXuVR-pmri7H4revJk3fGxZmRKzv3l0ziGPT1TRbl8crOJc8VZ5LDIweT1MARolVN/exec';
 
     async function fetchFiles() {
@@ -205,6 +204,10 @@
                     </div>`;
             } else {
                 data.forEach(file => {
+                    // سحب الـ ID من الرابط وتحويله لرابط تحميل مباشر فوراً
+                    let fileId = file.url.match(/[-\w]{25,}/);
+                    const directUrl = `https://docs.google.com/uc?export=download&id=${fileId}`;
+
                     const item = document.createElement('div');
                     item.className = 'file-item';
                     item.innerHTML = `
@@ -212,7 +215,7 @@
                             <div class="file-icon"><i class="far fa-file-alt"></i></div>
                             <span class="file-name" title="${file.name}">${file.name}</span>
                         </div>
-                        <a href="${file.url}" class="download-btn" target="_blank">
+                        <a href="${directUrl}" class="download-btn">
                             <i class="fas fa-download"></i> تحميل
                         </a>
                     `;
@@ -227,7 +230,6 @@
         }
     }
 
-    // تشغيل الجلب تلقائياً
     window.onload = fetchFiles;
 </script>
 
