@@ -3,194 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رفع وتحميل الملفات الاحترافي</title>
+    <title>Cloud Server - Upload</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
-        :root {
-            --primary: #00d2ff;
-            --secondary: #3a7bd5;
-            --bg: #0f0c29;
-            --card-bg: #1b1b2f;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            width: 90%;
-            max-width: 450px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        h2 { margin-bottom: 25px; color: var(--primary); font-size: 24px; }
-
-        .upload-area {
-            border: 2px dashed var(--primary);
-            padding: 40px 20px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: 0.3s;
-            position: relative;
-            background: rgba(0, 210, 255, 0.05);
-        }
-
-        .upload-area:hover {
-            background: rgba(0, 210, 255, 0.1);
-            border-color: white;
-        }
-
-        .upload-area i { font-size: 50px; color: var(--primary); margin-bottom: 15px; }
-
-        input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0; left: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .btn-upload {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            border: none;
-            color: white;
-            padding: 12px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 50px;
-            margin-top: 25px;
-            cursor: pointer;
-            width: 100%;
-            transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3);
-        }
-
-        .btn-upload:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 210, 255, 0.5); }
-
-        .status { margin-top: 20px; font-size: 14px; min-height: 20px; }
-
-        .result-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            display: none;
-        }
-
-        .download-link {
-            display: inline-block;
-            margin-top: 10px;
-            color: #00ffcc;
-            text-decoration: none;
-            font-weight: bold;
-            border: 1px solid #00ffcc;
-            padding: 5px 15px;
-            border-radius: 5px;
-        }
-
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: none;
-            margin: 10px auto;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        :root { --main: #3ecf8e; --bg: #0b0e11; --card: #15191c; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: var(--card); padding: 35px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #222; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+        .upload-zone { border: 2px dashed #333; padding: 40px 20px; border-radius: 15px; cursor: pointer; transition: 0.3s; margin: 20px 0; background: rgba(0,0,0,0.2); }
+        .upload-zone:hover { border-color: var(--main); background: rgba(62, 207, 142, 0.05); }
+        .upload-zone i { font-size: 50px; color: var(--main); margin-bottom: 15px; }
+        .btn { background: var(--main); border: none; color: black; padding: 14px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .btn:hover { background: #34b27b; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(62, 207, 142, 0.3); }
+        #status { margin-top: 15px; font-size: 14px; color: #888; }
+        #progress { width: 100%; background: #222; height: 6px; border-radius: 10px; margin-top: 15px; display: none; overflow: hidden; }
+        #progress-inner { width: 0%; height: 100%; background: var(--main); transition: 0.3s; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2><i class="fas fa-cloud-upload-alt"></i> مركز رفع الملفات</h2>
+    <h2 style="color: var(--main);"><i class="fas fa-cloud-upload-alt"></i> مركز رفع الفايل</h2>
+    <p style="color:#666; font-size:12px;">سيرفر Supabase السريع</p>
+
+    <div class="upload-zone" onclick="document.getElementById('fileInp').click()">
+        <i class="fas fa-folder-open"></i>
+        <p id="fileName">اضغط لاختيار ملف</p>
+        <input type="file" id="fileInp" style="display:none" onchange="showName()">
+    </div>
+
+    <div id="progress"><div id="progress-inner"></div></div>
+
+    <button class="btn" id="upBtn" onclick="uploadFile()">رفع للسيرفر</button>
     
-    <div class="upload-area" id="dropArea">
-        <i class="fas fa-file-import"></i>
-        <p id="fileName">اسحب الملف هنا أو اضغط للاختيار</p>
-        <input type="file" id="fileInput" onchange="updateName()">
-    </div>
-
-    <button class="btn-upload" onclick="startUpload()">رفع وتحضير الرابط</button>
-
-    <div class="loader" id="loader"></div>
-    <div class="status" id="status"></div>
-
-    <div class="result-box" id="resultBox">
-        <p>تم الرفع بنجاح! جاهز للتحميل:</p>
-        <a href="#" id="downloadBtn" class="download-link" target="_blank">
-            <i class="fas fa-download"></i> تحميل الملف الآن
-        </a>
-    </div>
+    <div id="status">جاهز للرفع...</div>
 </div>
 
 <script>
-    function updateName() {
-        const input = document.getElementById('fileInput');
-        const fileNameDisp = document.getElementById('fileName');
-        if(input.files.length > 0) {
-            fileNameDisp.innerText = "الملف المختار: " + input.files[0].name;
-            fileNameDisp.style.color = "#00d2ff";
+    // --- معلوماتك المدمجة ---
+    
+    // 1. انسخ الرابط الذي يبدأ بـ https من صفحة API وضعه هنا
+    const SUPABASE_URL = 'ضع_رابط_المشروع_هنا'; 
+    
+    // 2. تم وضع المفتاح الأول الذي أرسلته
+    const SUPABASE_KEY = 'sb_publishable_KZE0DlKrHONb05zrBnc5_w_ppJPSQNx'; 
+
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    function showName() {
+        const file = document.getElementById('fileInp').files[0];
+        if(file) {
+            document.getElementById('fileName').innerText = "تم اختيار: " + file.name;
+            document.getElementById('fileName').style.color = "#3ecf8e";
         }
     }
 
-    async function startUpload() {
-        const fileInput = document.getElementById('fileInput');
+    async function uploadFile() {
+        const fileInput = document.getElementById('fileInp');
+        const file = fileInput.files[0];
         const status = document.getElementById('status');
-        const loader = document.getElementById('loader');
-        const resultBox = document.getElementById('resultBox');
-        const downloadBtn = document.getElementById('downloadBtn');
+        const progress = document.getElementById('progress');
+        const bar = document.getElementById('progress-inner');
 
-        if (fileInput.files.length === 0) {
-            status.innerText = "⚠️ يرجى اختيار ملف أولاً يا بطل!";
-            status.style.color = "#ff4d4d";
+        if (!file) {
+            status.innerText = "⚠️ يرجى اختيار ملف أولاً!";
             return;
         }
 
-        // إخفاء النتائج السابقة وإظهار اللودر
-        resultBox.style.display = "none";
-        status.innerText = "جاري معالجة الملف...";
-        status.style.color = "white";
-        loader.style.display = "block";
+        status.innerText = "جاري الاتصال بالسيرفر...";
+        progress.style.display = "block";
+        bar.style.width = "40%";
 
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
+        // الرفع لـ Bucket اللي اسمه "New" كما في صورتك
+        const { data, error } = await supabase.storage
+            .from('New') 
+            .upload(`uploads/${Date.now()}_${file.name}`, file);
 
-        try {
-            const response = await fetch('https://file.io', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const result = await response.json();
-            
-            loader.style.display = "none";
-            
-            if (result.success) {
-                status.innerText = "✅ اكتمل الرفع!";
-                resultBox.style.display = "block";
-                downloadBtn.href = result.link;
-            } else {
-                status.innerText = "❌ فشل الرفع، السيرفر ممتلئ حالياً.";
-            }
-        } catch (error) {
-            loader.style.display = "none";
-            status.innerText = "❌ حدث خطأ في الاتصال بالشبكة.";
+        if (error) {
+            status.innerText = "❌ خطأ: " + error.message;
+            status.style.color = "#ff4d4d";
+            bar.style.backgroundColor = "#ff4d4d";
+        } else {
+            bar.style.width = "100%";
+            status.innerText = "✅ تم الرفع بنجاح!";
+            status.style.color = "#3ecf8e";
         }
     }
 </script>
