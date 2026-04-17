@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MARS LOADER - Login</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-box {
+            background-color: #1a1a1a;
+            border: 2px solid #ff4444; /* الإطار الأحمر */
+            border-radius: 15px;
+            padding: 2rem;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+        }
+
+        .logo-placeholder {
+            /* مكان شعار المريخ - يمكنك إضافة صورة هنا لاحقاً */
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #ff6666 0%, #cc0000 100%);
+            border-radius: 50%;
+            margin: 0 auto 1rem auto;
+            border: 2px solid #ffcccc;
+            box-shadow: 0 0 15px #ff4444;
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            text-align: right;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            color: #aaaaaa;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #0d0d0d;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ff4444;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #ff4e50, #f9d423); /* التدرج البرتقالي */
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        .paste-btn {
+            background: none;
+            border: none;
+            color: #ff4444;
+            margin-top: 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-box">
+        <div class="logo-placeholder"></div>
+        <div class="brand-name">MARS<br>LOADER</div>
+
+        <div class="input-group">
+            <span class="input-label">ACCESS KEY</span>
+            <input type="text" id="accessKey" placeholder="ادخل المفتاح هنا">
+        </div>
+
+        <button class="login-btn" onclick="checkKey()">LOGIN</button>
+        <button class="paste-btn" onclick="pasteKey()">PASTE</button>
+    </div>
+
+    <script>
+        function checkKey() {
+            const key = document.getElementById('accessKey').value;
+            // هنا سنضع كود الربط أونلاين في الخطوة القادمة
+            if (key === "test123") { // مفتاح تجريبي محلي
+                alert("تم تسجيل الدخول بنجاح! جاري تحويلك...");
+                // هنا يتم التحويل لصفحة الهكر
+                // window.location.href = "hacker_panel.html";
+            } else {
+                alert("مفتاح الوصول غير صحيح!");
+            }
+        }
+
+        async function pasteKey() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('accessKey').value = text;
+            } catch (err) {
+                alert('فشل لصق النص. تأكد من إعطاء الصلاحية.');
+            }
+        }
+    </script>
+
+</body>
+</html>
