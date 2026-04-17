@@ -1,142 +1,134 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MARS LOADER - Login</title>
+    <title>MUQTADA ADMIN V1</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body {
-            background-color: #000000;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .login-box {
-            background-color: #1a1a1a;
-            border: 2px solid #ff4444; /* الإطار الأحمر */
-            border-radius: 15px;
-            padding: 2rem;
-            width: 320px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
-        }
-
-        .logo-placeholder {
-            /* مكان شعار المريخ - يمكنك إضافة صورة هنا لاحقاً */
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, #ff6666 0%, #cc0000 100%);
-            border-radius: 50%;
-            margin: 0 auto 1rem auto;
-            border: 2px solid #ffcccc;
-            box-shadow: 0 0 15px #ff4444;
-        }
-
-        .brand-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            margin-bottom: 2rem;
-        }
-
-        .input-group {
-            text-align: right;
-            margin-bottom: 1.5rem;
-        }
-
-        .input-label {
-            color: #aaaaaa;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            background-color: #0d0d0d;
-            border: 1px solid #333;
-            border-radius: 8px;
-            color: white;
-            font-size: 1rem;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #ff4444;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(45deg, #ff4e50, #f9d423); /* التدرج البرتقالي */
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .login-btn:active {
-            transform: scale(0.98);
-        }
-
-        .paste-btn {
-            background: none;
-            border: none;
-            color: #ff4444;
-            margin-top: 1rem;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
+        body { background-color: #000; color: #0f0; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .container { border: 2px solid #0f0; padding: 20px; border-radius: 15px; box-shadow: 0 0 20px #0f0; width: 90%; max-width: 400px; text-align: center; }
+        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #0f0; background: #111; color: #0f0; font-weight: bold; box-sizing: border-box; }
+        button { background: #0f0; color: #000; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #0a0; box-shadow: 0 0 10px #0f0; }
+        .list { width: 90%; max-width: 400px; margin-top: 20px; border-top: 1px solid #333; padding-top: 10px; }
+        .key-item { background: #111; padding: 10px; margin: 5px 0; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center; border-radius: 5px; text-align: left; }
+        .key-info { display: flex; flex-direction: column; flex-grow: 1; }
+        .device-count { color: #ffeb3b; font-size: 0.85em; }
+        .btn-delete { background: #ff5252; color: #fff; border: none; width: auto; padding: 5px 10px; margin-left: 5px; }
+        .btn-delete:hover { background: #d32f2f; box-shadow: 0 0 10px #ff5252; }
+        .btn-copy { background: #00b0ff; color: #fff; border: none; width: auto; padding: 5px 10px; }
+        .actions { display: flex; }
     </style>
 </head>
 <body>
 
-    <div class="login-box">
-        <div class="logo-placeholder"></div>
-        <div class="brand-name">MARS<br>LOADER</div>
-
-        <div class="input-group">
-            <span class="input-label">ACCESS KEY</span>
-            <input type="text" id="accessKey" placeholder="ادخل المفتاح هنا">
-        </div>
-
-        <button class="login-btn" onclick="checkKey()">LOGIN</button>
-        <button class="paste-btn" onclick="pasteKey()">PASTE</button>
+    <div class="container">
+        <h2 style="text-shadow: 0 0 10px #0f0;">GENERATE ENCRYPTED KEY</h2>
+        <input type="text" id="keyCode" placeholder="أدخل الكود أو ولده">
+        <select id="duration">
+            <option value="1">ساعة (1 Hour)</option>
+            <option value="24">يوم (1 Day)</option>
+            <option value="168">أسبوع (1 Week)</option>
+            <option value="720">شهر (1 Month)</option>
+        </select>
+        <button onclick="generateRandom()">توليد كود عشوائي</button>
+        <button onclick="saveKey()">تفعيل ورفع أونلاين</button>
     </div>
 
-    <script>
-        function checkKey() {
-            const key = document.getElementById('accessKey').value;
-            // هنا سنضع كود الربط أونلاين في الخطوة القادمة
-            if (key === "test123") { // مفتاح تجريبي محلي
-                alert("تم تسجيل الدخول بنجاح! جاري تحويلك...");
-                // هنا يتم التحويل لصفحة الهكر
-                // window.location.href = "hacker_panel.html";
-            } else {
-                alert("مفتاح الوصول غير صحيح!");
+    <div class="list" id="keyList">
+        <p style="text-align:center;">جاري جلب الأكواد...</p>
+    </div>
+
+<script>
+    const firebaseConfig = {
+        databaseURL: "https://maqtadakeynewapp-default-rtdb.firebaseio.com"
+    };
+    
+    try {
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function generateRandom() {
+            const key = "MQ-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+            document.getElementById('keyCode').value = key;
+        }
+
+        function saveKey() {
+            const code = document.getElementById('keyCode').value;
+            const hours = document.getElementById('duration').value;
+            if (!code) return alert("الرجاء توليد كود أولاً!");
+
+            const expiry = Date.now() + (hours * 60 * 60 * 1000);
+
+            db.ref('Keys/' + code).set({
+                s: 1001, 
+                e: expiry 
+            }).then(() => {
+                alert("تم الرفع بنجاح: " + code);
+                copyText(code);
+            }).catch(err => alert("خطأ في الرفع: " + err.message));
+        }
+
+        function deleteKey(code) {
+            if(confirm("هل أنت متأكد من حذف الكود: " + code + "؟")) {
+                db.ref('Keys/' + code).remove()
+                .then(() => alert("تم حذف الكود بنجاح"))
+                .catch(err => alert("خطأ أثناء الحذف: " + err.message));
             }
         }
 
-        async function pasteKey() {
-            try {
-                const text = await navigator.clipboard.readText();
-                document.getElementById('accessKey').value = text;
-            } catch (err) {
-                alert('فشل لصق النص. تأكد من إعطاء الصلاحية.');
-            }
+        function copyText(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert("تم نسخ الكود!");
         }
-    </script>
 
+        db.ref('Keys').on('value', snap => {
+            const listDiv = document.getElementById('keyList');
+            listDiv.innerHTML = "<h3>الأكواد النشطة:</h3>";
+            if (!snap.exists()) {
+                listDiv.innerHTML += "<p>لا توجد أكواد حالياً</p>";
+                return;
+            }
+            
+            snap.forEach(child => {
+                const data = child.val();
+                const now = Date.now();
+                const remaining = Math.round((data.e - now) / 3600000);
+                
+                let devicesCount = 0;
+                if (data.devices) {
+                    devicesCount = Object.keys(data.devices).length;
+                }
+
+                if (remaining > 0) {
+                    listDiv.innerHTML += `
+                        <div class="key-item">
+                            <div class="key-info">
+                                <span style="color:#0f0; font-weight:bold;">${child.key}</span>
+                                <span style="font-size:0.8em;">باقي: ${remaining} ساعة</span>
+                                <span class="device-count">الأجهزة: ${devicesCount}</span>
+                            </div>
+                            <div class="actions">
+                                <button class="btn-copy" onclick="copyText('${child.key}')">نسخ</button>
+                                <button class="btn-delete" onclick="deleteKey('${child.key}')">حذف</button>
+                            </div>
+                        </div>`;
+                } else {
+                    db.ref('Keys/' + child.key).remove();
+                }
+            });
+        });
+
+    } catch (e) {
+        document.body.innerHTML = "<h1 style='color:red'>خطأ في الاتصال!</h1>";
+    }
+</script>
 </body>
 </html>
