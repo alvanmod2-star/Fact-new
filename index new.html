@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive Cloud Storage</title>
+    <title>مركز الرفع الذكي - Google Drive</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --google-blue: #4285F4; --bg: #0b0e11; --card: #15191c; --main: #3ecf8e; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
         .container { background: var(--card); padding: 30px; border-radius: 20px; width: 95%; max-width: 450px; text-align: center; border: 1px solid #222; box-shadow: 0 10px 40px rgba(0,0,0,0.6); margin-bottom: 20px; }
         .upload-zone { border: 2px dashed #333; padding: 30px 20px; border-radius: 15px; cursor: pointer; transition: 0.3s; margin: 20px 0; background: rgba(66, 133, 244, 0.05); }
         .upload-zone:hover { border-color: var(--google-blue); background: rgba(66, 133, 244, 0.1); }
         .upload-zone i { font-size: 45px; color: var(--google-blue); margin-bottom: 10px; }
         .btn { background: var(--google-blue); border: none; color: white; padding: 14px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
         .btn:hover { background: #3367d6; transform: translateY(-2px); }
+        .btn:disabled { background: #555; }
         .files-list-container { background: var(--card); width: 95%; max-width: 450px; border-radius: 20px; border: 1px solid #222; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
         .file-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #222; font-size: 14px; }
+        .file-info { display: flex; align-items: center; gap: 10px; overflow: hidden; }
+        .file-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
         .download-link { background: var(--main); color: black; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; }
         #status { margin-top: 15px; font-size: 14px; color: #aaa; }
     </style>
@@ -23,24 +26,27 @@
 <body>
 
 <div class="container">
-    <h2 style="color: var(--google-blue);"><i class="fab fa-google-drive"></i> Drive Storage</h2>
+    <h2 style="color: var(--google-blue);"><i class="fab fa-google-drive"></i> Drive Server</h2>
     <div class="upload-zone" onclick="document.getElementById('fileInp').click()">
         <i class="fas fa-cloud-upload-alt"></i>
-        <p id="fileName">اضغط لاختيار ملف</p>
+        <p id="fileName">اضغط هنا لاختيار ملف</p>
         <input type="file" id="fileInp" style="display:none" onchange="updateFileName()">
     </div>
-    <button class="btn" id="uploadBtn" onclick="uploadToDrive()">رفع إلى درايف</button>
-    <div id="status">جاهز...</div>
+    <button class="btn" id="uploadBtn" onclick="uploadToDrive()">رفع الملف الآن</button>
+    <div id="status">جاهز للعمل...</div>
 </div>
 
 <div class="files-list-container">
-    <h3 style="margin-bottom: 15px;"><i class="fas fa-list-ul" style="color: var(--main);"></i> الملفات العامة</h3>
-    <div id="filesList">جاري جلب الملفات...</div>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+        <h3 style="margin: 0;"><i class="fas fa-list-ul" style="color: var(--main);"></i> الملفات العامة</h3>
+        <i class="fas fa-sync-alt" style="cursor:pointer; color:var(--google-blue);" onclick="fetchFiles()"></i>
+    </div>
+    <div id="filesList">جاري تحميل القائمة...</div>
 </div>
 
 <script>
-    // الرابط الخاص بالسكربت الذي أنشأته
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzCIN5cyg-0tdFhmRiFev-JyRmTiA8CXI4JvG5lDdY902pZsO1-6wH12pCzcIxa6YW/exec';
+    // تم تحديث الرابط الجديد هنا
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCrIsYGVWgPNnY_BXu_XvIvjxCTEZBLUM5O616cfvyuiLGA0fOSUMz6UBf5G22dxg/exec';
 
     function updateFileName() {
         const file = document.getElementById('fileInp').files[0];
@@ -51,22 +57,33 @@
         const fileInput = document.getElementById('fileInp');
         const file = fileInput.files[0];
         const status = document.getElementById('status');
-        if (!file) return alert("اختر ملفاً!");
+        const btn = document.getElementById('uploadBtn');
 
-        status.innerText = "جاري الرفع...";
+        if (!file) return alert("يرجى اختيار ملف!");
+
+        status.innerText = "جاري الرفع... يرجى الانتظار";
+        btn.disabled = true;
+
         const reader = new FileReader();
         reader.onload = async function(e) {
             const base64 = e.target.result.split(',')[1];
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify({ base64: base64, contentType: file.type, name: file.name })
-            });
-            const result = await response.json();
-            if (result.result === 'success') {
-                status.innerText = "✅ تم الرفع!";
-                fetchFiles();
-            } else {
-                status.innerText = "❌ فشل الرفع.";
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ base64: base64, contentType: file.type, name: file.name })
+                });
+                const result = await response.json();
+                if (result.result === 'success') {
+                    status.innerText = "✅ تم الرفع بنجاح!";
+                    fetchFiles();
+                } else {
+                    status.innerText = "❌ فشل الرفع: " + (result.error || "خطأ غير معروف");
+                }
+            } catch (err) {
+                status.innerText = "❌ حدث خطأ في الاتصال بالسيرفر";
+            } finally {
+                btn.disabled = false;
+                fileInput.value = "";
             }
         };
         reader.readAsDataURL(file);
@@ -74,16 +91,29 @@
 
     async function fetchFiles() {
         const listDiv = document.getElementById('filesList');
-        const response = await fetch(SCRIPT_URL);
-        const data = await response.json();
-        listDiv.innerHTML = "";
-        data.forEach(file => {
-            listDiv.innerHTML += `
-                <div class="file-item">
-                    <span>${file.name}</span>
+        try {
+            const response = await fetch(SCRIPT_URL);
+            const data = await response.json();
+            listDiv.innerHTML = "";
+            if (data.length === 0) {
+                listDiv.innerHTML = "<p style='color:#555;'>المجلد فارغ.</p>";
+                return;
+            }
+            data.forEach(file => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.innerHTML = `
+                    <div class="file-info">
+                        <i class="far fa-file"></i>
+                        <span class="file-name">${file.name}</span>
+                    </div>
                     <a href="${file.url}" class="download-link" target="_blank">تنزيل</a>
-                </div>`;
-        });
+                `;
+                listDiv.appendChild(item);
+            });
+        } catch (err) {
+            listDiv.innerText = "فشل في تحديث القائمة.";
+        }
     }
 
     window.onload = fetchFiles;
